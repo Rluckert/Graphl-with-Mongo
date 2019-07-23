@@ -1,8 +1,9 @@
 # dependencies
 node_modules
 
+# token jwt
+libs/env.js
+
 # misc
 .DS_Store
-.env*
-!.env.example
 npm-debug.log*

@@ -1,8 +1,10 @@
 const Course = require('../models/course');
+const User = require('../models/user');
 
 module.exports = {
     Query: {
-        async getCourses(obj, { page, limit }) {
+        async getCourses(obj, { page, limit }, context) {
+            console.log(context);
             const courses = await Course.find();
             return courses;
         },
@@ -12,9 +14,13 @@ module.exports = {
          }
     },
     Mutation: {
-        async addCourse(obj, { input }) {
-            const course = new Course(input);
+        async addCourse(obj, { input, user }, context) {
+            if(!context || context.currentUser) return null;
+            const userObj = await User.findById(user);
+            const course = new Course({...input, user});
             await course.save();
+            userObj.courses.push(course);
+            await userObj.save();
             return course;
         },
         async updateCourse(obj, {id, input}){
@@ -29,5 +35,10 @@ module.exports = {
             }
         }
 
+    },
+    Course:{
+        async user(c){
+            return await User.findById(c.user);
+        }
     }
 }
